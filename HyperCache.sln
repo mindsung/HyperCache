@@ -12,7 +12,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MindSung.HyperCache", "src\MindSung.HyperCache\MindSung.HyperCache.xproj", "{6F6F0C67-D2EC-455F-BE13-10B3A526C3D0}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MindSung.HyperCache.Test", "MindSung.HyperCache.Test\MindSung.HyperCache.Test.xproj", "{650A5A85-5956-491E-9312-5E25A27D1108}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{79584787-874C-4E03-BD14-D45ECD651F0B}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MindSung.HyperCache.Test", "test\MindSung.HyperCache.Test\MindSung.HyperCache.Test.xproj", "{650A5A85-5956-491E-9312-5E25A27D1108}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,5 +36,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{6F6F0C67-D2EC-455F-BE13-10B3A526C3D0} = {45362C73-2AF4-4932-A7BF-345B7DD98797}
+		{650A5A85-5956-491E-9312-5E25A27D1108} = {79584787-874C-4E03-BD14-D45ECD651F0B}
 	EndGlobalSection
 EndGlobal
