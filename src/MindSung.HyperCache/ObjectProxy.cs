@@ -7,17 +7,25 @@ namespace MindSung.HyperCache
 {
     public class ObjectProxy<T>
     {
-        public ObjectProxy(T value)
+        public static ObjectProxy<T> FromValue(string key, T value)
         {
-            if (value == null) { throw new ArgumentException("ObjectProxy value cannot be null", "value"); }
+            if (string.IsNullOrWhiteSpace(key)) { throw new ArgumentException("Invalid object key", "key"); }
+            return new ObjectProxy<T>() { Key = key, _Value = value };
         }
 
-        public ObjectProxy(string serialized)
+        public static ObjectProxy<T> FromSerialized(string key, string serialized)
         {
-            if (serialized == null) { throw new ArgumentException("ObjectProxy serialized value cannot be null", "serialized"); }
+            if (string.IsNullOrWhiteSpace(key)) { throw new ArgumentException("Invalid object key", "key"); }
+            return new ObjectProxy<T>() { Key = key, _Serialized = serialized };
+        }
+
+        private ObjectProxy()
+        {
         }
 
         object sync = new object();
+
+        public string Key { get; private set; }
 
         public T Value
         {
@@ -58,7 +66,7 @@ namespace MindSung.HyperCache
                 return _Serialized;
             }
         }
-        string _Serialized = null;
+        string _Serialized;
         bool hasSerialized;
     }
 }

@@ -14,7 +14,8 @@ namespace MindSung.HyperCache.Providers
             {
                 this.applicationScope = applicationScope ?? "default";
                 this.typeScope = typeScope ?? "default";
-                this.path = basePath + this.applicationScope + "/" + this.typeScope + "/";
+                path = basePath + this.applicationScope + "/" + this.typeScope + "/";
+                if (!Directory.Exists(path)) { Directory.CreateDirectory(path); }
             }
 
             string applicationScope;
@@ -27,24 +28,32 @@ namespace MindSung.HyperCache.Providers
                 if (!File.Exists(fileName)) { return null; }
                 try
                 {
-                    using (var reader = new StreamReader(fileName))
+                    using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+                    using (var reader = new StreamReader(stream))
                     {
-                        return new ObjectProxy<T>(await reader.ReadToEndAsync());
+                        return ObjectProxy<T>.FromSerialized(key, await reader.ReadToEndAsync());
                     }
                 }
                 // May have been removed between checking existence and opening.
                 catch (FileNotFoundException) { return null; }
             }
 
-            public Task<IEnumerable<T>> GetAll()
+            public async Task<IEnumerable<ObjectProxy<T>>> GetAll()
             {
-                // TODO
-                return Task.FromResult(Enumerable.Empty<T>());
+                var all = new List<ObjectProxy<T>>();
+                foreach (var filePath in Directory.EnumerateFiles(path))
+                {
+                    var key = Path.GetFileName(filePath);
+                    var proxy = await Get(key);
+                    if (proxy != null) { all.Add(proxy); }
+                }
+                return all;
             }
 
             public async Task AddOrUpdate(string key, ObjectProxy<T> value)
             {
-                using (var writer = new StreamWriter(path + key, false))
+                using (var stream = new FileStream(path + key, FileMode.Create, FileAccess.Write))
+                using (var writer = new StreamWriter(stream))
                 {
                     await writer.WriteAsync(value.Serialized);
                 }
@@ -59,11 +68,8 @@ namespace MindSung.HyperCache.Providers
 
         public FileSystemStorageProviderFactory(string basePath = null)
         {
-            this.basePath = basePath ??
-                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)
-                + System.Reflection.Assembly.GetEntryAssembly().GetName().Name
-                + "/data/";
-            if (!this.basePath.EndsWith("\\") || this.basePath.EndsWith("/"))
+            this.basePath = basePath ?? "./data/";
+            if (!(this.basePath.EndsWith("\\") || this.basePath.EndsWith("/")))
             {
                 this.basePath = this.basePath + "/";
             }

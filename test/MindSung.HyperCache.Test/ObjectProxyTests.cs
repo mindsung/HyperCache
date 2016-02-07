@@ -14,8 +14,7 @@ namespace MindSung.HyperCache.Test
         [Fact]
         public void CreateProxy()
         {
-            var proxy = new ObjectProxy<TestObject>(new TestObject());
-            Assert.True(true);
+            var proxy = ObjectProxy<TestObject>.FromValue("abc", new TestObject());
         }
     }
 }

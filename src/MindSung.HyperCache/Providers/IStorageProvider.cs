@@ -8,7 +8,7 @@ namespace MindSung.HyperCache.Providers
     public interface IStorageProvider<T>
     {
         Task<ObjectProxy<T>> Get(string key);
-        Task<IEnumerable<T>> GetAll();
+        Task<IEnumerable<ObjectProxy<T>>> GetAll();
         Task AddOrUpdate(string key, ObjectProxy<T> value);
         Task Remove(string key);
     }
