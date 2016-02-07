@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace MindSung.HyperCache
 {
-    public class ObjectProxy<T> where T : class, IEnumerable<KeyValuePair<string, object>>
+    public class ObjectProxy<T>
     {
         public ObjectProxy(T value)
         {
@@ -23,32 +23,35 @@ namespace MindSung.HyperCache
         {
             get
             {
-                if (_Value == null)
+                if (!hasValue)
                 {
                     lock (sync)
                     {
-                        if (_Value == null)
+                        if (!hasValue)
                         {
                             // TODO: Deserialize
+                            hasValue = true;
                         }
                     }
                 }
                 return _Value;
             }
         }
-        T _Value = null;
+        T _Value;
+        bool hasValue;
 
         public string Serialized
         {
             get
             {
-                if (_Serialized == null)
+                if (!hasSerialized)
                 {
                     lock (sync)
                     {
-                        if (_Serialized == null)
+                        if (!hasSerialized)
                         {
                             // TODO: Serialize
+                            hasSerialized = true;
                         }
                     }
                 }
@@ -56,5 +59,6 @@ namespace MindSung.HyperCache
             }
         }
         string _Serialized = null;
+        bool hasSerialized;
     }
 }
