@@ -7,11 +7,26 @@ using Newtonsoft.Json;
 
 namespace MindSung.HyperState
 {
-    public class JsonObjectProxyFactory : ObjectProxyFactory<string>
+    public class JsonObjectProxyFactory : ObjectProxyFactoryBase<string>
     {
-        public JsonObjectProxyFactory(Action<JsonSerializerSettings> setupAction = null)
-            : base(new JsonSerializationProvider(setupAction))
+        public JsonObjectProxyFactory(ISerializationProvider<string> jsonSerializer)
+            : base(jsonSerializer)
         {
+        }
+
+        public JsonObjectProxyFactory(JsonSerializerSettings settings = null)
+            : this(new JsonSerializationProvider(settings))
+        {
+        }
+
+        public JsonObjectProxyFactory(Action<JsonSerializerSettings> setupAction)
+            : this(new JsonSerializationProvider(setupAction))
+        {
+        }
+
+        protected override IObjectProxy<TObject, string> CreateObjectProxy<TObject>(ISerializationProvider<string> serializer)
+        {
+            return new JsonObjectProxy<TObject>(Serializer);
         }
     }
 }

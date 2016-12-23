@@ -9,19 +9,19 @@ using MindSung.HyperState.AspNetCore;
 namespace MindSung.Test.HyperState.WebApi.Controllers
 {
     [Route("api/[controller]")]
-    public class ValuesController : Controller
+    public class JsonValuesController : Controller
     {
-        public ValuesController(IWebObjectProxyFactory<string> factory)
+        public JsonValuesController(JsonWebObjectProxyFactory factory)
         {
             this.factory = factory;
 
             var val1 = factory.FromObject(new MyValues { IntValue = 1234, StringValue = "hello" });
             var val2 = factory.FromObject(new MyValues { IntValue = 2345, StringValue = "there" });
-            myValues[val1.GetObject().IntValue] = val1;
-            myValues[val2.GetObject().IntValue] = val2;
+            myValues[val1.GetObject().IntValue] = (JsonObjectProxy<MyValues>)val1;
+            myValues[val2.GetObject().IntValue] = (JsonObjectProxy<MyValues>)val2;
         }
 
-        IWebObjectProxyFactory<string> factory;
+        JsonWebObjectProxyFactory factory;
 
         public class MyValues
         {
@@ -29,7 +29,7 @@ namespace MindSung.Test.HyperState.WebApi.Controllers
             public string StringValue { get; set; }
         }
 
-        static Dictionary<int, IObjectProxy<MyValues, string>> myValues = new Dictionary<int, IObjectProxy<MyValues, string>>();
+        static Dictionary<int, JsonObjectProxy<MyValues>> myValues = new Dictionary<int, JsonObjectProxy<MyValues>>();
 
         // GET api/values
         [HttpGet]
@@ -42,7 +42,7 @@ namespace MindSung.Test.HyperState.WebApi.Controllers
         [HttpGet("{id}")]
         public ActionResult Get(int id)
         {
-            IObjectProxy<MyValues, string> val;
+            JsonObjectProxy<MyValues> val;
             if (!myValues.TryGetValue(id, out val))
             {
                 return NotFound();
@@ -52,7 +52,7 @@ namespace MindSung.Test.HyperState.WebApi.Controllers
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody]IObjectProxy<MyValues, string> proxy)
+        public void Post([FromBody]JsonObjectProxy<MyValues> proxy)
         {
             var val = proxy.GetObject();
             myValues[val.IntValue] = proxy;
@@ -60,7 +60,7 @@ namespace MindSung.Test.HyperState.WebApi.Controllers
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public ActionResult Put(int id, [FromBody]IObjectProxy<MyValues, string> proxy)
+        public ActionResult Put(int id, [FromBody]JsonObjectProxy<MyValues> proxy)
         {
             if (!myValues.ContainsKey(id))
             {

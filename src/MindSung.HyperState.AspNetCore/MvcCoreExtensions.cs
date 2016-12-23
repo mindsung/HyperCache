@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,23 +10,54 @@ namespace MindSung.HyperState.AspNetCore
 {
     public static class MvcCoreExtensions
     {
-        public static IMvcCoreBuilder AddHyperState(this IMvcCoreBuilder builder, ObjectProxyFactory<string> factory)
+        //public static IMvcCoreBuilder AddHyperState(this IMvcCoreBuilder builder, ObjectProxyFactory<string> factory)
+        //{
+        //    return builder.AddMvcOptions(options =>
+        //    {
+        //        options.InputFormatters.Insert(0, new ObjectProxyInputFormatter(factory));
+        //        options.OutputFormatters.Insert(0, new ObjectProxyOutputFormatter(factory));
+        //    });
+        //}
+
+        //public static IMvcCoreBuilder AddJsonHyperState(this IMvcCoreBuilder builder, JsonObjectProxyFactory factory)
+        //{
+        //    return AddHyperState(builder, factory);
+        //}
+
+        //public static IMvcCoreBuilder AddJsonHyperState(this IMvcCoreBuilder builder, Action<JsonSerializerSettings> setupAction = null)
+        //{
+        //    return AddJsonHyperState(builder, new JsonObjectProxyFactory(setupAction));
+        //}
+
+        private static ConcurrentDictionary<Type, object> defaultFactories = new ConcurrentDictionary<Type, object>();
+
+        public static IMvcCoreBuilder AddWebObjectProxy<TSerialized>(this IMvcCoreBuilder builder, IWebObjectProxyFactory<TSerialized> factory)
         {
-            return builder.AddMvcOptions(options =>
+            // If this is the first factory added for the TSerialized type, set it as the default factory
+            // for dependency injection of the generic type IWebObjectProxyFactory<TSerialized>
+            if (defaultFactories.TryAdd(typeof(TSerialized), factory))
             {
-                options.InputFormatters.Insert(0, new ObjectProxyInputFormatter(factory));
-                options.OutputFormatters.Insert(0, new ObjectProxyOutputFormatter(factory));
-            });
+                builder.Services.AddTransient(typeof(IWebObjectProxyFactory<TSerialized>), _ => factory);
+            }
+            // Add the factory for dependency injection of the specific type.
+            builder.Services.AddTransient(factory.GetType(), _ => factory);
+            // TODO: Add Input/Output formatters.
+            return builder;
         }
 
-        public static IMvcCoreBuilder AddJsonHyperState(this IMvcCoreBuilder builder, JsonObjectProxyFactory factory)
+        public static IMvcCoreBuilder AddJsonWebObjectProxy(this IMvcCoreBuilder builder, ISerializationProvider<string> jsonSerializer)
         {
-            return AddHyperState(builder, factory);
+            return AddWebObjectProxy(builder, new JsonWebObjectProxyFactory(jsonSerializer));
         }
 
-        public static IMvcCoreBuilder AddJsonHyperState(this IMvcCoreBuilder builder, Action<JsonSerializerSettings> setupAction = null)
+        public static IMvcCoreBuilder AddJsonWebObjectProxy(this IMvcCoreBuilder builder, JsonSerializerSettings settings = null)
         {
-            return AddJsonHyperState(builder, new JsonObjectProxyFactory(setupAction));
+            return AddWebObjectProxy(builder, new JsonWebObjectProxyFactory(settings));
+        }
+
+        public static IMvcCoreBuilder AddJsonWebObjectProxy(this IMvcCoreBuilder builder, Action<JsonSerializerSettings> setupAction)
+        {
+            return AddWebObjectProxy(builder, new JsonWebObjectProxyFactory(setupAction));
         }
     }
 }
