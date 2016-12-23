@@ -8,38 +8,44 @@ using System.Collections.Concurrent;
 
 namespace MindSung.HyperState
 {
-    public class ObjectProxy<T> where T : class
+    public class ObjectProxy<TObject, TSerialized> : IObjectProxy<TObject, TSerialized> where TObject : class where TSerialized : class
     {
-        string serialized;
-        T value;
-
-        public string GetSerialized()
+        internal ObjectProxy(ISerializationProvider<TSerialized> serializer)
         {
-            if (serialized == null && value != null)
+            this.serializer = serializer;
+        }
+
+        ISerializationProvider<TSerialized> serializer;
+        TSerialized serialized;
+        TObject obj;
+
+        public TSerialized GetSerialized()
+        {
+            if (serialized == null && obj != null)
             {
-                serialized = JsonConvert.SerializeObject(value);
+                serialized = serializer.Serialize(obj);
             }
             return serialized;
         }
 
-        public void SetSerialized(string serialized)
+        public void SetSerialized(TSerialized serialized)
         {
             this.serialized = serialized;
-            value = null;
+            obj = null;
         }
 
-        public T GetObject()
+        public TObject GetObject()
         {
-            if (value == null && serialized != null)
+            if (obj == null && serialized != null)
             {
-                value = JsonConvert.DeserializeObject<T>(serialized);
+                obj = serializer.Deserialize<TObject>(serialized);
             }
-            return value;
+            return obj;
         }
 
-        public void SetObject(T value)
+        public void SetObject(TObject value)
         {
-            this.value = value;
+            this.obj = value;
             serialized = null;
         }
     }

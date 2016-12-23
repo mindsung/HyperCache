@@ -12,20 +12,20 @@ using System.Threading.Tasks;
 
 namespace MindSung.HyperState.AspNetCore
 {
-    public class ObjectProxyOutputFormatter : IOutputFormatter
+    internal class ObjectProxyOutputFormatter : IOutputFormatter
     {
-        public ObjectProxyOutputFormatter(JsonSerializerSettings jsonSettings)
+        public ObjectProxyOutputFormatter(ObjectProxyFactory<string> factory)
         {
-            serializer = JsonSerializer.Create(jsonSettings);
+            this.factory = factory;
         }
 
-        JsonSerializer serializer;
+        ObjectProxyFactory<string> factory;
 
         public bool CanWriteResult(OutputFormatterCanWriteContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
-            if (context.ObjectType == null || context.ObjectType.GetTypeInfo().GetGenericTypeDefinition() != typeof(ObjectProxy<>))
+            if (context.ObjectType == null || context.ObjectType.GetTypeInfo().GetGenericTypeDefinition() != typeof(ObjectProxy<,>))
             {
                 return false;
             }
@@ -47,7 +47,7 @@ namespace MindSung.HyperState.AspNetCore
                 }
                 else
                 {
-                    serializer.Serialize(writer, context.Object);
+                    await writer.WriteAsync(factory.Serializer.Serialize(context.Object));
                 }
                 await writer.FlushAsync();
             }

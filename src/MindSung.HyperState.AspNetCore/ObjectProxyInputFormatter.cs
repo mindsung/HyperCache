@@ -13,12 +13,12 @@ namespace MindSung.HyperState.AspNetCore
 {
     public class ObjectProxyInputFormatter : IInputFormatter
     {
-        public ObjectProxyInputFormatter(JsonSerializerSettings jsonSettings)
+        public ObjectProxyInputFormatter(ObjectProxyFactory<string> factory)
         {
-            serializer = JsonSerializer.Create(jsonSettings);
+            this.factory = factory;
         }
 
-        JsonSerializer serializer;
+        ObjectProxyFactory<string> factory;
 
         public bool CanRead(InputFormatterContext context)
         {

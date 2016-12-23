@@ -10,17 +10,23 @@ namespace MindSung.HyperState.AspNetCore
 {
     public static class MvcCoreExtensions
     {
-        public static IMvcCoreBuilder AddHyperStateJsonFormatters(this IMvcCoreBuilder builder, Action<JsonSerializerSettings> setupAction = null)
+        public static IMvcCoreBuilder AddHyperState(this IMvcCoreBuilder builder, ObjectProxyFactory<string> factory)
         {
-            var jsonSettings = JsonConvert.DefaultSettings?.Invoke() ?? new JsonSerializerSettings();
-            setupAction?.Invoke(jsonSettings);
-
             return builder.AddMvcOptions(options =>
             {
-                options.InputFormatters.Insert(0, new ObjectProxyInputFormatter(jsonSettings));
-                options.OutputFormatters.Insert(0, new ObjectProxyOutputFormatter(jsonSettings));
-            })
-            .AddJsonFormatters(setupAction ?? (_ => { }));
+                options.InputFormatters.Insert(0, new ObjectProxyInputFormatter(factory));
+                options.OutputFormatters.Insert(0, new ObjectProxyOutputFormatter(factory));
+            });
+        }
+
+        public static IMvcCoreBuilder AddJsonHyperState(this IMvcCoreBuilder builder, JsonObjectProxyFactory factory)
+        {
+            return AddHyperState(builder, factory);
+        }
+
+        public static IMvcCoreBuilder AddJsonHyperState(this IMvcCoreBuilder builder, Action<JsonSerializerSettings> setupAction = null)
+        {
+            return AddJsonHyperState(builder, new JsonObjectProxyFactory(setupAction));
         }
     }
 }
