@@ -17,8 +17,8 @@ namespace MindSung.Test.HyperState.WebApi.Controllers
 
             var val1 = factory.FromObject(new MyValues { IntValue = 1234, StringValue = "hello" });
             var val2 = factory.FromObject(new MyValues { IntValue = 2345, StringValue = "there" });
-            myValues[val1.GetObject().IntValue] = (JsonObjectProxy<MyValues>)val1;
-            myValues[val2.GetObject().IntValue] = (JsonObjectProxy<MyValues>)val2;
+            myValues[val1.Object.IntValue] = (JsonObjectProxy<MyValues>)val1;
+            myValues[val2.Object.IntValue] = (JsonObjectProxy<MyValues>)val2;
         }
 
         JsonWebObjectProxyFactory factory;
@@ -35,7 +35,7 @@ namespace MindSung.Test.HyperState.WebApi.Controllers
         [HttpGet]
         public IEnumerable<MyValues> Get()
         {
-            return myValues.Values.Select(v => v.GetObject());
+            return myValues.Values.Select(v => v.Object);
         }
 
         // GET api/values/5
@@ -54,7 +54,7 @@ namespace MindSung.Test.HyperState.WebApi.Controllers
         [HttpPost]
         public void Post([FromBody]JsonObjectProxy<MyValues> proxy)
         {
-            var val = proxy.GetObject();
+            var val = proxy.Object;
             myValues[val.IntValue] = proxy;
         }
 
@@ -66,7 +66,7 @@ namespace MindSung.Test.HyperState.WebApi.Controllers
             {
                 return NotFound();
             }
-            var val = proxy.GetObject();
+            var val = proxy.Object;
             myValues[val.IntValue] = proxy;
             return Ok();
         }

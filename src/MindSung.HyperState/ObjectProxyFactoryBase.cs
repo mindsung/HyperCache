@@ -19,14 +19,14 @@ namespace MindSung.HyperState
         public virtual IObjectProxy<TObject, TSerialized> FromObject<TObject>(TObject obj)
         {
             var proxy = CreateObjectProxy<TObject>(Serializer);
-            proxy.SetObject(obj);
+            proxy.Object = obj;
             return proxy;
         }
 
         public virtual IObjectProxy<TObject, TSerialized> FromSerialized<TObject>(TSerialized serialized)
         {
             var proxy = CreateObjectProxy<TObject>(Serializer);
-            proxy.SetSerialized(serialized);
+            proxy.Serialized = serialized;
             return proxy;
         }
     }

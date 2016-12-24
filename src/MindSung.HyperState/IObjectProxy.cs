@@ -7,9 +7,7 @@ namespace MindSung.HyperState
 {
     public interface IObjectProxy<TObject, TSerialized>
     {
-        TSerialized GetSerialized();
-        void SetSerialized(TSerialized serialized);
-        TObject GetObject();
-        void SetObject(TObject obj);
+        TSerialized Serialized { get; set; }
+        TObject Object { get; set; }
     }
 }

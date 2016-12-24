@@ -16,72 +16,76 @@ namespace MindSung.HyperState
         }
 
         private ISerializationProvider<TSerialized> serializer;
-        private TSerialized serialized;
-        private bool hasSerialized;
-        private TObject obj;
-        private bool hasObj;
         private object sync = new object();
 
-        public virtual TSerialized GetSerialized()
+        public virtual TSerialized Serialized
         {
-            if (!hasObj && !hasSerialized)
+            get
             {
-                throw new InvalidOperationException("The object proxy has not been initialized.");
+                if (!hasObject && !hasSerialized)
+                {
+                    throw new InvalidOperationException("The object proxy has not been initialized.");
+                }
+                if (!hasSerialized)
+                {
+                    lock (sync)
+                    {
+                        if (!hasSerialized)
+                        {
+                            _Serialized = serializer.Serialize(_Object);
+                            hasSerialized = true;
+                        }
+                    }
+                }
+                return _Serialized;
             }
-            if (!hasSerialized)
+            set
             {
                 lock (sync)
                 {
-                    if (!hasSerialized)
-                    {
-                        serialized = serializer.Serialize(obj);
-                        hasSerialized = true;
-                    }
+                    this._Serialized = value;
+                    _Object = default(TObject);
+                    hasObject = false;
+                    hasSerialized = true;
                 }
             }
-            return serialized;
         }
+        private TSerialized _Serialized;
+        private bool hasSerialized;
 
-        public virtual void SetSerialized(TSerialized serialized)
+        public virtual TObject Object
         {
-            lock (sync)
+            get
             {
-                this.serialized = serialized;
-                obj = default(TObject);
-                hasObj = false;
-                hasSerialized = true;
+                if (!hasObject && !hasSerialized)
+                {
+                    throw new InvalidOperationException("The object proxy has not been initialized.");
+                }
+                if (!hasObject)
+                {
+                    lock (sync)
+                    {
+                        if (!hasObject)
+                        {
+                            _Object = serializer.Deserialize<TObject>(_Serialized);
+                            hasObject = true;
+                        }
+                    }
+                }
+                return _Object;
             }
-        }
-
-        public virtual TObject GetObject()
-        {
-            if (!hasObj && !hasSerialized)
-            {
-                throw new InvalidOperationException("The object proxy has not been initialized.");
-            }
-            if (!hasObj)
+            set
             {
                 lock (sync)
                 {
-                    if (!hasObj)
-                    {
-                        obj = serializer.Deserialize<TObject>(serialized);
-                        hasObj = true;
-                    }
+                    this._Object = value;
+                    _Serialized = default(TSerialized);
+                    hasSerialized = false;
+                    hasObject = true;
                 }
             }
-            return obj;
         }
-
-        public virtual void SetObject(TObject obj)
-        {
-            lock (sync)
-            {
-                this.obj = obj;
-                serialized = default(TSerialized);
-                hasSerialized = false;
-                hasObj = true;
-            }
-        }
+        private TObject _Object;
+        private bool hasObject;
     }
 }
