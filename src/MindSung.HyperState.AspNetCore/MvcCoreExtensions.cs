@@ -37,7 +37,7 @@ namespace MindSung.HyperState.AspNetCore
             // for dependency injection of the generic type IWebObjectProxyFactory<TSerialized>
             if (defaultFactories.TryAdd(typeof(TSerialized), factory))
             {
-                builder.Services.AddTransient(typeof(IWebObjectProxyFactory<TSerialized>), _ => factory);
+                builder.Services.AddTransient(typeof(IWebObjectProxyFactory<TSerialized>), _ => defaultFactories[typeof(TSerialized)]);
             }
             // Add the factory for dependency injection of the specific type.
             builder.Services.AddTransient(factory.GetType(), _ => factory);
