@@ -11,6 +11,7 @@ namespace MindSung.HyperState.AspNetCore
         Type GetObjectProxyType<TObject>();
         IEnumerable<string> AcceptContectTypes { get; }
         string OutputContentType { get; }
-        Task<TSerialized> ReadAsSerialized(Stream stream);
+        Task<TSerialized> ReadAsSerialized(TextReader reader);
+        Task WriteSerialized(TextWriter writer, TSerialized serialized);
     }
 }

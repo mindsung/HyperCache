@@ -11,52 +11,27 @@ using System.Threading.Tasks;
 
 namespace MindSung.HyperState.AspNetCore
 {
-    //internal class ObjectProxyInvoker
-    //{
-    //    private ObjectProxyInvoker(Type genericType)
-    //    {
-    //        proxyType = typeof(ObjectProxy<>).MakeGenericType(genericType);
-    //        getSerializedMethod = proxyType.GetTypeInfo().GetDeclaredMethod("GetSerialized");
-    //        setSerializedMethod = proxyType.GetTypeInfo().GetDeclaredMethod("SetSerialized");
-    //    }
+    internal class ObjectProxyInvoker<TSerialized>
+    {
+        private ObjectProxyInvoker(Type genericType)
+        {
+            proxyType = typeof(IObjectProxy<,>).MakeGenericType(genericType, typeof(TSerialized));
+            getSerializedMethod = proxyType.GetTypeInfo().GetDeclaredProperty("Serialized").GetMethod;
+        }
 
-    //    Type proxyType;
-    //    MethodInfo getSerializedMethod;
-    //    MethodInfo setSerializedMethod;
+        Type proxyType;
+        MethodInfo getSerializedMethod;
 
-    //    public string GetSerialized(object proxy)
-    //    {
-    //        return (string)getSerializedMethod.Invoke(proxy, null);
-    //    }
+        static ConcurrentDictionary<Type, ObjectProxyInvoker<TSerialized>> proxyInvokers = new ConcurrentDictionary<Type, ObjectProxyInvoker<TSerialized>>();
 
-    //    public object SetSerialized(string serialized)
-    //    {
-    //        var proxy = Activator.CreateInstance(proxyType);
-    //        setSerializedMethod.Invoke(proxy, new object[] { serialized });
-    //        return proxy;
-    //    }
+        public static ObjectProxyInvoker<TSerialized> GetProxyInvoker(Type objectType)
+        {
+            return proxyInvokers.GetOrAdd(objectType, new ObjectProxyInvoker<TSerialized>(objectType.GetTypeInfo().GenericTypeArguments[0]));
+        }
 
-    //    static ConcurrentDictionary<Type, ObjectProxyInvoker> proxyInvokers = new ConcurrentDictionary<Type, ObjectProxyInvoker>();
-
-    //    public static ObjectProxyInvoker GetProxyInvoker(Type objectType)
-    //    {
-    //        ObjectProxyInvoker proxyInvoker;
-    //        if (proxyInvokers.TryGetValue(objectType, out proxyInvoker))
-    //        {
-    //            return proxyInvoker;
-    //        }
-    //        var typeInfo = objectType.GetTypeInfo();
-    //        var tProxy = typeof(ObjectProxy<>);
-    //        if (typeInfo.GetGenericTypeDefinition() == tProxy)
-    //        {
-    //            proxyInvoker = new ObjectProxyInvoker(typeInfo.GenericTypeArguments[0]);
-    //            proxyInvokers[objectType] = proxyInvoker;
-    //            return proxyInvoker;
-    //        }
-    //        else
-    //        {
-    //            return null;
-    //        }
-    //    }
-    //}
+        public string GetSerialized(object proxy)
+        {
+            return (string)getSerializedMethod.Invoke(proxy, null);
+        }
+    }
 }

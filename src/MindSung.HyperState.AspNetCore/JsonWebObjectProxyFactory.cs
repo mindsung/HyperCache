@@ -37,12 +37,14 @@ namespace MindSung.HyperState.AspNetCore
             return typeof(JsonObjectProxy<TObject>);
         }
 
-        public async Task<string> ReadAsSerialized(Stream stream)
+        public Task<string> ReadAsSerialized(TextReader reader)
         {
-            using (var textReader = new StreamReader(stream))
-            {
-                return await textReader.ReadToEndAsync();
-            }
+            return reader.ReadToEndAsync();
+        }
+
+        public Task WriteSerialized(TextWriter writer, string serialized)
+        {
+            return writer.WriteAsync(serialized);
         }
     }
 }

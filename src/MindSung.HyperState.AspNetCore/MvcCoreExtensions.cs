@@ -10,28 +10,10 @@ namespace MindSung.HyperState.AspNetCore
 {
     public static class MvcCoreExtensions
     {
-        //public static IMvcCoreBuilder AddHyperState(this IMvcCoreBuilder builder, ObjectProxyFactory<string> factory)
-        //{
-        //    return builder.AddMvcOptions(options =>
-        //    {
-        //        options.InputFormatters.Insert(0, new ObjectProxyInputFormatter(factory));
-        //        options.OutputFormatters.Insert(0, new ObjectProxyOutputFormatter(factory));
-        //    });
-        //}
-
-        //public static IMvcCoreBuilder AddJsonHyperState(this IMvcCoreBuilder builder, JsonObjectProxyFactory factory)
-        //{
-        //    return AddHyperState(builder, factory);
-        //}
-
-        //public static IMvcCoreBuilder AddJsonHyperState(this IMvcCoreBuilder builder, Action<JsonSerializerSettings> setupAction = null)
-        //{
-        //    return AddJsonHyperState(builder, new JsonObjectProxyFactory(setupAction));
-        //}
-
         private static ConcurrentDictionary<Type, object> defaultFactories = new ConcurrentDictionary<Type, object>();
 
-        public static IMvcCoreBuilder AddWebObjectProxy<TSerialized>(this IMvcCoreBuilder builder, IWebObjectProxyFactory<TSerialized> factory)
+        public static IMvcCoreBuilder AddWebObjectProxy<TSerialized, TFactory>(this IMvcCoreBuilder builder, TFactory factory)
+            where TFactory : IWebObjectProxyFactory<TSerialized>
         {
             // If this is the first factory added for the TSerialized type, set it as the default factory
             // for dependency injection of the generic type IWebObjectProxyFactory<TSerialized>
@@ -41,23 +23,27 @@ namespace MindSung.HyperState.AspNetCore
             }
             // Add the factory for dependency injection of the specific type.
             builder.Services.AddTransient(factory.GetType(), _ => factory);
-            // TODO: Add Input/Output formatters.
-            return builder;
+            // Add formatters.
+            return builder.AddMvcOptions(options =>
+            {
+                options.OutputFormatters.Insert(0, new ObjectProxyOutputFormatter<TSerialized, TFactory>(factory, options));
+                // TODO: Add input formatter
+            });
         }
 
         public static IMvcCoreBuilder AddJsonWebObjectProxy(this IMvcCoreBuilder builder, ISerializationProvider<string> jsonSerializer)
         {
-            return AddWebObjectProxy(builder, new JsonWebObjectProxyFactory(jsonSerializer));
+            return AddWebObjectProxy<string, JsonWebObjectProxyFactory>(builder, new JsonWebObjectProxyFactory(jsonSerializer));
         }
 
         public static IMvcCoreBuilder AddJsonWebObjectProxy(this IMvcCoreBuilder builder, JsonSerializerSettings settings = null)
         {
-            return AddWebObjectProxy(builder, new JsonWebObjectProxyFactory(settings));
+            return AddWebObjectProxy<string, JsonWebObjectProxyFactory>(builder, new JsonWebObjectProxyFactory(settings));
         }
 
         public static IMvcCoreBuilder AddJsonWebObjectProxy(this IMvcCoreBuilder builder, Action<JsonSerializerSettings> setupAction)
         {
-            return AddWebObjectProxy(builder, new JsonWebObjectProxyFactory(setupAction));
+            return AddWebObjectProxy<string, JsonWebObjectProxyFactory>(builder, new JsonWebObjectProxyFactory(setupAction));
         }
     }
 }

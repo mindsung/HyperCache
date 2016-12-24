@@ -34,9 +34,7 @@ namespace MindSung.Test.HyperState.WebApi
             services
                 .AddCors()
                 .AddMvcCore()
-                .AddJsonFormatters(options => options.ContractResolver = new CamelCasePropertyNamesContractResolver())
                 .AddJsonWebObjectProxy(options => options.ContractResolver = new CamelCasePropertyNamesContractResolver());
-                //.AddHyperStateJsonFormatters(options => options.ContractResolver = new CamelCasePropertyNamesContractResolver());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
