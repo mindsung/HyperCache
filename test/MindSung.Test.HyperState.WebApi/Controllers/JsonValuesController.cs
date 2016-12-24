@@ -17,8 +17,8 @@ namespace MindSung.Test.HyperState.WebApi.Controllers
 
             var val1 = factory.FromObject(new MyValues { IntValue = 1234, StringValue = "hello" });
             var val2 = factory.FromObject(new MyValues { IntValue = 2345, StringValue = "there" });
-            myValues[val1.Object.IntValue] = (JsonObjectProxy<MyValues>)val1;
-            myValues[val2.Object.IntValue] = (JsonObjectProxy<MyValues>)val2;
+            myValues[val1.Object.IntValue] = val1;
+            myValues[val2.Object.IntValue] = val2;
         }
 
         JsonWebObjectProxyFactory factory;

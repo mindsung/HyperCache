@@ -28,5 +28,15 @@ namespace MindSung.HyperState
         {
             return new JsonObjectProxy<TObject>(Serializer);
         }
+
+        public new JsonObjectProxy<TObject> FromObject<TObject>(TObject obj)
+        {
+            return (JsonObjectProxy<TObject>)base.FromObject<TObject>(obj);
+        }
+
+        public new JsonObjectProxy<TObject> FromSerialized<TObject>(string serialized)
+        {
+            return (JsonObjectProxy<TObject>)base.FromSerialized<TObject>(serialized);
+        }
     }
 }
