@@ -21,21 +21,25 @@ namespace MindSung.HyperState.AspNetCore
             this.options = options;
         }
 
-        TFactory factory;
-        MvcOptions options;
+        private TFactory factory;
+        private MvcOptions options;
+        private ConcurrentDictionary<Type, SerializedInvoker> invokers = new ConcurrentDictionary<Type, SerializedInvoker>();
 
-        private bool IsObjectProxy(Type type)
+        class SerializedInvoker
         {
-            var ifs = type.GetTypeInfo().GetGenericTypeDefinition().GetInterfaces();
-            return ifs.Any(i =>
+            public SerializedInvoker(Type genericType)
             {
-                if (i.GenericTypeArguments.Length != 2)
-                {
-                    return false;
-                }
-                var ifop = typeof(IObjectProxy<,>).MakeGenericType(i.GenericTypeArguments[0], typeof(TSerialized));
-                return i == ifop;
-            });
+                proxyType = typeof(IObjectProxy<,>).MakeGenericType(genericType, typeof(TSerialized));
+                getSerializedMethod = proxyType.GetTypeInfo().GetDeclaredProperty("Serialized").GetMethod;
+            }
+
+            Type proxyType;
+            MethodInfo getSerializedMethod;
+
+            public string GetSerialized(object proxy)
+            {
+                return (string)getSerializedMethod.Invoke(proxy, null);
+            }
         }
 
         public bool CanWriteResult(OutputFormatterCanWriteContext context)
@@ -44,9 +48,26 @@ namespace MindSung.HyperState.AspNetCore
             {
                 throw new ArgumentNullException(nameof(context));
             }
+            var type = context.ObjectType;
+            if (type == null)
+            {
+                return false;
+            }
             // We'll format the object if it is an object proxy or if no other registered formatters will handle it.
-            return context.ObjectType != null && (IsObjectProxy(context.ObjectType)
-                || !options.OutputFormatters.Where(f => f.GetType() != GetType()).Any(f => f.CanWriteResult(context)));
+            if (type.GetTypeInfo().GetInterfaces().Any(i =>
+            {
+                return i.GenericTypeArguments.Length == 2 && i.GenericTypeArguments[1] == typeof(TSerialized)
+                    && i == typeof(IObjectProxy<,>).MakeGenericType(i.GenericTypeArguments[0], typeof(TSerialized));
+            }))
+            {
+                invokers.TryAdd(type, new SerializedInvoker(type.GetTypeInfo().GenericTypeArguments[0]));
+                return true;
+            }
+            if (!options.OutputFormatters.Where(f => f.GetType() != GetType()).Any(f => f.CanWriteResult(context)))
+            {
+                return true;
+            }
+            return false;
         }
 
         public async Task WriteAsync(OutputFormatterWriteContext context)
@@ -55,20 +76,23 @@ namespace MindSung.HyperState.AspNetCore
             {
                 throw new ArgumentNullException(nameof(context));
             }
+            var type = context.ObjectType;
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(context.ObjectType));
+            }
             var response = context.HttpContext.Response;
             response.ContentType = factory.OutputContentType;
             using (var writer = context.WriterFactory(response.Body, Encoding.UTF8))
             {
-                if (context.ObjectType != null)
+                SerializedInvoker invoker;
+                if (invokers.TryGetValue(type, out invoker))
                 {
-                    if (IsObjectProxy(context.ObjectType))
-                    {
-                        await writer.WriteAsync(ObjectProxyInvoker<TSerialized>.GetProxyInvoker(context.ObjectType).GetSerialized(context.Object));
-                    }
-                    else
-                    {
-                        await factory.WriteSerialized(writer, factory.Serializer.Serialize(context.Object, context.ObjectType));
-                    }
+                    await writer.WriteAsync(invoker.GetSerialized(context.Object));
+                }
+                else
+                {
+                    await factory.WriteSerialized(writer, factory.Serializer.Serialize(context.Object, type));
                 }
                 await writer.FlushAsync();
             }
