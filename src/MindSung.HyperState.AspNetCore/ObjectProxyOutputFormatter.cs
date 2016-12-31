@@ -36,9 +36,9 @@ namespace MindSung.HyperState.AspNetCore
             Type proxyType;
             MethodInfo getSerializedMethod;
 
-            public string GetSerialized(object proxy)
+            public TSerialized GetSerialized(object proxy)
             {
-                return (string)getSerializedMethod.Invoke(proxy, null);
+                return (TSerialized)getSerializedMethod.Invoke(proxy, null);
             }
         }
 
@@ -76,26 +76,21 @@ namespace MindSung.HyperState.AspNetCore
             {
                 throw new ArgumentNullException(nameof(context));
             }
-            var type = context.ObjectType;
-            if (type == null)
+            if (context.ObjectType == null)
             {
                 throw new ArgumentNullException(nameof(context.ObjectType));
             }
-            var response = context.HttpContext.Response;
-            response.ContentType = factory.OutputContentType;
-            using (var writer = context.WriterFactory(response.Body, Encoding.UTF8))
+            TSerialized serialized;
+            SerializedInvoker invoker;
+            if (invokers.TryGetValue(context.ObjectType, out invoker))
             {
-                SerializedInvoker invoker;
-                if (invokers.TryGetValue(type, out invoker))
-                {
-                    await writer.WriteAsync(invoker.GetSerialized(context.Object));
-                }
-                else
-                {
-                    await factory.WriteSerialized(writer, factory.Serializer.Serialize(context.Object, type));
-                }
-                await writer.FlushAsync();
+                serialized = invoker.GetSerialized(context.Object);
             }
+            else
+            {
+                serialized = factory.Serializer.Serialize(context.Object, context.ObjectType);
+            }
+            await factory.WriteSerialized(context.HttpContext.Response, serialized);
         }
     }
 }
