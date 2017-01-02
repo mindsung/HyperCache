@@ -1,5 +1,5 @@
-## What is HyperCache?
-HyperCache is a library that provides high-performance access to objects that may exist in local memory (native), shared memory (serialized), and/or persistent storage.
+## What is HyperState?
+HyperState is a library that provides high-performance access to objects that may exist in multiple states, including native, serialized, and persisted states.
 ## Project Goals
 * Provide seamless access to objects in local memory (native), shared memory (serialized to cache), and persistent (data store) states
 * Extensible architecture to allow flexible implementation of
