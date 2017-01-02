@@ -38,5 +38,10 @@ namespace MindSung.HyperState
         {
             return (JsonObjectProxy<TObject>)base.FromSerialized<TObject>(serialized);
         }
+
+        public override Type GetObjectProxyType<TObject>()
+        {
+            return typeof(JsonObjectProxy<TObject>);
+        }
     }
 }

@@ -29,5 +29,7 @@ namespace MindSung.HyperState
             proxy.Serialized = serialized;
             return proxy;
         }
+
+        public abstract Type GetObjectProxyType<TObject>();
     }
 }

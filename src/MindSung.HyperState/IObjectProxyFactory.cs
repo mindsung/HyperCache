@@ -10,5 +10,6 @@ namespace MindSung.HyperState
         ISerializationProvider<TSerialized> Serializer { get; }
         IObjectProxy<TObject, TSerialized> FromObject<TObject>(TObject obj);
         IObjectProxy<TObject, TSerialized> FromSerialized<TObject>(TSerialized serialized);
+        Type GetObjectProxyType<TObject>();
     }
 }

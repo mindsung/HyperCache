@@ -9,7 +9,6 @@ namespace MindSung.HyperState.AspNetCore
 {
     public interface IWebObjectProxyFactory<TSerialized> : IObjectProxyFactory<TSerialized>
     {
-        Type GetObjectProxyType<TObject>();
         IEnumerable<string> AcceptContentTypes { get; }
         Task<TSerialized> ReadSerialized(HttpRequest request);
         Task WriteSerialized(HttpResponse response, TSerialized serialized);

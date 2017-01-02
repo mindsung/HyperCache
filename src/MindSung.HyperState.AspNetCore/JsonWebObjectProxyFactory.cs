@@ -30,11 +30,6 @@ namespace MindSung.HyperState.AspNetCore
 
         public IEnumerable<string> AcceptContentTypes { get { return accept; } }
 
-        public Type GetObjectProxyType<TObject>()
-        {
-            return typeof(JsonObjectProxy<TObject>);
-        }
-
         public async Task<string> ReadSerialized(HttpRequest request)
         {
             var encoding = request.GetTypedHeaders().ContentType?.Encoding;
