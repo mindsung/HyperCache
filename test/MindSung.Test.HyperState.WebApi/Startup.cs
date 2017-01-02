@@ -43,7 +43,8 @@ namespace MindSung.Test.HyperState.WebApi
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            app.UseMvc();
+            app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader())
+                .UseMvc();
         }
     }
 }

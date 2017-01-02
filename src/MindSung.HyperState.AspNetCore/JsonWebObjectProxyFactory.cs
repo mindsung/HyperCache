@@ -37,7 +37,10 @@ namespace MindSung.HyperState.AspNetCore
 
         public async Task<string> ReadSerialized(HttpRequest request)
         {
-            using (var reader = new StreamReader(request.Body, request.GetTypedHeaders().ContentType.Encoding))
+            var encoding = request.GetTypedHeaders().ContentType?.Encoding;
+            using (var reader = encoding != null
+                ? new StreamReader(request.Body, request.GetTypedHeaders().ContentType.Encoding)
+                : new StreamReader(request.Body))
             {
                 return await reader.ReadToEndAsync();
             }

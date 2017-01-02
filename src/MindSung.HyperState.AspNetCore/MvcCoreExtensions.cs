@@ -26,8 +26,9 @@ namespace MindSung.HyperState.AspNetCore
             // Add formatters.
             return builder.AddMvcOptions(options =>
             {
-                options.OutputFormatters.Insert(0, new ObjectProxyOutputFormatter<TSerialized, TFactory>(factory, options));
-                // TODO: Add input formatter
+                var formatter = new ObjectProxyFormatter<TSerialized, TFactory>(factory, options);
+                options.OutputFormatters.Insert(0, formatter);
+                options.InputFormatters.Insert(0, formatter);
             });
         }
 

@@ -54,8 +54,14 @@ namespace MindSung.Test.HyperState.WebApi.Controllers
         [HttpPost]
         public void Post([FromBody]IObjectProxy<MyValues, string> proxy)
         {
-            var val = proxy.Object;
-            myValues[val.IntValue] = proxy;
+            myValues[proxy.Object.IntValue] = proxy;
+        }
+
+        // POST api/values
+        [HttpPost("noproxy")]
+        public void Post([FromBody]MyValues val)
+        {
+            myValues[val.IntValue] = factory.FromObject(val);
         }
 
         // PUT api/values/5
