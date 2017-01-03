@@ -38,7 +38,7 @@ namespace MindSung.Test.HyperState.WebApi.Controllers
             return myValues.Values.Select(v => v.Object);
         }
 
-        // GET api/values/5
+        // GET api/values/{id}
         [HttpGet("{id}")]
         public ActionResult Get(int id)
         {
@@ -58,7 +58,7 @@ namespace MindSung.Test.HyperState.WebApi.Controllers
             myValues[val.IntValue] = proxy;
         }
 
-        // PUT api/values/5
+        // PUT api/values/{id}
         [HttpPut("{id}")]
         public ActionResult Put(int id, [FromBody]JsonObjectProxy<MyValues> proxy)
         {
@@ -71,7 +71,25 @@ namespace MindSung.Test.HyperState.WebApi.Controllers
             return Ok();
         }
 
-        // DELETE api/values/5
+        // PATCH api/values
+        [HttpPatch]
+        public ActionResult Patch([FromBody]IEnumerable<JsonObjectProxy<MyValues>> values)
+        {
+            foreach (var proxy in values)
+            {
+                myValues[proxy.Object.IntValue] = proxy;
+            }
+            return Ok(values);
+        }
+
+        // POST api/values/patch
+        [HttpPost("patch")]
+        public ActionResult PostPatch([FromBody]IEnumerable<JsonObjectProxy<MyValues>> values)
+        {
+            return Patch(values);
+        }
+
+        // DELETE api/values/{id}
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {

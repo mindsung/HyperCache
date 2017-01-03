@@ -45,19 +45,19 @@ namespace MindSung.HyperState
             return typeof(JsonObjectProxy<TObject>);
         }
 
-        public override IList<IObjectProxy<TObject, string>> FromSerializedCollection<TObject>(string serializedCollection)
+        public override IReadOnlyList<IObjectProxy<TObject, string>> FromSerializedCollection<TObject>(string serializedCollection)
         {
             if (string.IsNullOrWhiteSpace(serializedCollection))
             {
-                return new List<IObjectProxy<TObject, string>>();
+                return new List<JsonObjectProxy<TObject>>();
             }
             serializedCollection = serializedCollection.Trim();
             if (!serializedCollection.StartsWith("[") || !serializedCollection.EndsWith("]"))
             {
                 // Assume a single object or value.
-                return new List<IObjectProxy<TObject, string>>() { FromSerialized<TObject>(serializedCollection) };
+                return new List<JsonObjectProxy<TObject>>() { FromSerialized<TObject>(serializedCollection) };
             }
-            var list = new List<IObjectProxy<TObject, string>>();
+            var list = new List<JsonObjectProxy<TObject>>();
             var serializedObject = new StringBuilder();
             var depth = 0;
             bool inQuote = false;

@@ -45,8 +45,8 @@ namespace MindSung.HyperState.AspNetCore
         {
             if (ifType.GenericTypeArguments.Length == 1 && IsObjectProxy(ifType.GenericTypeArguments[0])
                 && (ifType == typeof(IEnumerable<>).MakeGenericType(ifType.GenericTypeArguments[0])
-                    || ifType == typeof(ICollection<>).MakeGenericType(ifType.GenericTypeArguments[0])
-                    || ifType == typeof(IList<>).MakeGenericType(ifType.GenericTypeArguments[0])))
+                    || ifType == typeof(IReadOnlyCollection<>).MakeGenericType(ifType.GenericTypeArguments[0])
+                    || ifType == typeof(IReadOnlyList<>).MakeGenericType(ifType.GenericTypeArguments[0])))
             {
                 objectType = ifType.GenericTypeArguments[0].GenericTypeArguments[0];
                 return true;

@@ -32,7 +32,7 @@ namespace MindSung.HyperState
 
         public abstract Type GetObjectProxyType<TObject>();
 
-        public virtual IList<IObjectProxy<TObject, TSerialized>> FromSerializedCollection<TObject>(TSerialized serializedCollection)
+        public virtual IReadOnlyList<IObjectProxy<TObject, TSerialized>> FromSerializedCollection<TObject>(TSerialized serializedCollection)
         {
             throw new NotImplementedException();
         }

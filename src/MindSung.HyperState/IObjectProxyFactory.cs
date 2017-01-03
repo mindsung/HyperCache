@@ -11,7 +11,7 @@ namespace MindSung.HyperState
         IObjectProxy<TObject, TSerialized> FromObject<TObject>(TObject obj);
         IObjectProxy<TObject, TSerialized> FromSerialized<TObject>(TSerialized serialized);
         Type GetObjectProxyType<TObject>();
-        IList<IObjectProxy<TObject, TSerialized>> FromSerializedCollection<TObject>(TSerialized serializedCollection);
+        IReadOnlyList<IObjectProxy<TObject, TSerialized>> FromSerializedCollection<TObject>(TSerialized serializedCollection);
         TSerialized ToSerializedCollection<TObject>(IEnumerable<IObjectProxy<TObject, TSerialized>> collection);
     }
 }
