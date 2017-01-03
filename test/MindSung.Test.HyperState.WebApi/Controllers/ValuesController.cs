@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MindSung.HyperState;
 using MindSung.HyperState.AspNetCore;
+using System.Diagnostics;
 
 namespace MindSung.Test.HyperState.WebApi.Controllers
 {
@@ -33,9 +34,9 @@ namespace MindSung.Test.HyperState.WebApi.Controllers
 
         // GET api/values
         [HttpGet]
-        public IEnumerable<MyValues> Get()
+        public ActionResult Get()
         {
-            return myValues.Values.Select(v => v.Object);
+            return Ok(myValues.Values);
         }
 
         // GET api/values/5
@@ -75,6 +76,16 @@ namespace MindSung.Test.HyperState.WebApi.Controllers
             var val = proxy.Object;
             myValues[val.IntValue] = proxy;
             return Ok();
+        }
+
+        [HttpPost("batch")]
+        public ActionResult Patch([FromBody]IEnumerable<IObjectProxy<MyValues, string>> values)
+        {
+            foreach (var proxy in values)
+            {
+                myValues[proxy.Object.IntValue] = proxy;
+            }
+            return Ok(values);
         }
 
         // DELETE api/values/5

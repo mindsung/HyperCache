@@ -31,5 +31,15 @@ namespace MindSung.HyperState
         }
 
         public abstract Type GetObjectProxyType<TObject>();
+
+        public virtual IList<IObjectProxy<TObject, TSerialized>> FromSerializedCollection<TObject>(TSerialized serializedCollection)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual TSerialized ToSerializedCollection<TObject>(IEnumerable<IObjectProxy<TObject, TSerialized>> collection)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

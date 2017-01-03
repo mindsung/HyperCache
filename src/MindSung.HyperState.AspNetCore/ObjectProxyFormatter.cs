@@ -28,7 +28,7 @@ namespace MindSung.HyperState.AspNetCore
         bool IsInterfaceObjectProxy(Type ifType)
         {
             return ifType.GenericTypeArguments.Length == 2 && ifType.GenericTypeArguments[1] == typeof(TSerialized)
-                    && ifType == typeof(IObjectProxy<,>).MakeGenericType(ifType.GenericTypeArguments[0], typeof(TSerialized));
+                && ifType == typeof(IObjectProxy<,>).MakeGenericType(ifType.GenericTypeArguments[0], typeof(TSerialized));
         }
 
         bool IsObjectProxy(Type type)
@@ -38,18 +38,68 @@ namespace MindSung.HyperState.AspNetCore
             {
                 return IsInterfaceObjectProxy(type);
             }
-            return ti.GetInterfaces().Any(i => IsInterfaceObjectProxy(i));
+            return ti.GetInterfaces().Any(ifType => IsInterfaceObjectProxy(ifType));
+        }
+
+        bool IsInterfaceObjectProxyEnumerable(Type ifType, out Type objectType)
+        {
+            if (ifType.GenericTypeArguments.Length == 1 && IsObjectProxy(ifType.GenericTypeArguments[0])
+                && (ifType == typeof(IEnumerable<>).MakeGenericType(ifType.GenericTypeArguments[0])
+                    || ifType == typeof(ICollection<>).MakeGenericType(ifType.GenericTypeArguments[0])
+                    || ifType == typeof(IList<>).MakeGenericType(ifType.GenericTypeArguments[0])))
+            {
+                objectType = ifType.GenericTypeArguments[0].GenericTypeArguments[0];
+                return true;
+            }
+            else
+            {
+                objectType = null;
+                return false;
+            }
+        }
+
+        bool IsObjectProxyEnumerable(Type type, bool isInput, out Type objectType)
+        {
+            objectType = null;
+            var ti = type.GetTypeInfo();
+            if (ti.IsInterface)
+            {
+                return IsInterfaceObjectProxyEnumerable(type, out objectType);
+            }
+            else if (isInput)
+            {
+                // Input formatting only allow interfaces - IList, ICollection, or IEnumerable.
+                return false;
+            }
+            foreach (var ifType in ti.GetInterfaces())
+            {
+                if (IsInterfaceObjectProxyEnumerable(ifType, out objectType))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         class FromSerializedInvoker
         {
-            public FromSerializedInvoker(TFactory factory, Type objectType)
+            public FromSerializedInvoker(TFactory factory, Type objectType, bool isCollection)
             {
                 this.factory = factory;
-                fromSerializedMethod = factory.GetType().GetTypeInfo()
-                    .GetMethod("FromSerialized").MakeGenericMethod(objectType);
+                this.isCollection = isCollection;
+                if (isCollection)
+                {
+                    fromSerializedMethod = factory.GetType().GetTypeInfo()
+                        .GetMethod("FromSerializedCollection").MakeGenericMethod(objectType);
+                }
+                else
+                {
+                    fromSerializedMethod = factory.GetType().GetTypeInfo()
+                        .GetMethod("FromSerialized").MakeGenericMethod(objectType);
+                }
             }
 
+            bool isCollection;
             TFactory factory;
             MethodInfo fromSerializedMethod;
 
@@ -74,7 +124,13 @@ namespace MindSung.HyperState.AspNetCore
             // We'll format the object if it is an object proxy or if no other registered formatters will handle it.
             if (IsObjectProxy(type))
             {
-                fromSerializedInvokers.TryAdd(type, new FromSerializedInvoker(factory, type.GetTypeInfo().GenericTypeArguments[0]));
+                fromSerializedInvokers.TryAdd(type, new FromSerializedInvoker(factory, type.GetTypeInfo().GenericTypeArguments[0], false));
+                return true;
+            }
+            Type enumerableObjectType;
+            if (IsObjectProxyEnumerable(type, true, out enumerableObjectType))
+            {
+                fromSerializedInvokers.TryAdd(type, new FromSerializedInvoker(factory, enumerableObjectType, true));
                 return true;
             }
             if (!options.InputFormatters.Where(f => f.GetType() != GetType()).Any(f => f.CanRead(context)))
@@ -102,17 +158,36 @@ namespace MindSung.HyperState.AspNetCore
 
         class SerializedInvoker
         {
-            public SerializedInvoker(Type objectType)
+            public SerializedInvoker(TFactory factory, Type objectType, bool isCollection)
             {
-                var proxyType = typeof(IObjectProxy<,>).MakeGenericType(objectType, typeof(TSerialized));
-                getSerializedMethod = proxyType.GetTypeInfo().GetDeclaredProperty("Serialized").GetMethod;
+                this.factory = factory;
+                this.isCollection = isCollection;
+                if (isCollection)
+                {
+                    getSerializedMethod = factory.GetType().GetTypeInfo()
+                        .GetMethod("ToSerializedCollection").MakeGenericMethod(objectType);
+                }
+                else
+                {
+                    var proxyType = typeof(IObjectProxy<,>).MakeGenericType(objectType, typeof(TSerialized));
+                    getSerializedMethod = proxyType.GetTypeInfo().GetDeclaredProperty("Serialized").GetMethod;
+                }
             }
 
+            bool isCollection;
+            TFactory factory;
             MethodInfo getSerializedMethod;
 
-            public TSerialized GetSerialized(object proxy)
+            public TSerialized GetSerialized(object proxyOrCollection)
             {
-                return (TSerialized)getSerializedMethod.Invoke(proxy, null);
+                if (isCollection)
+                {
+                    return (TSerialized)getSerializedMethod.Invoke(factory, new object[] { proxyOrCollection });
+                }
+                else
+                {
+                    return (TSerialized)getSerializedMethod.Invoke(proxyOrCollection, null);
+                }
             }
         }
 
@@ -132,7 +207,13 @@ namespace MindSung.HyperState.AspNetCore
             // We'll format the object if it is an object proxy or if no other registered formatters will handle it.
             if (IsObjectProxy(type))
             {
-                serializedInvokers.TryAdd(type, new SerializedInvoker(type.GetTypeInfo().GenericTypeArguments[0]));
+                serializedInvokers.TryAdd(type, new SerializedInvoker(factory, type.GetTypeInfo().GenericTypeArguments[0], false));
+                return true;
+            }
+            Type enumerableObjectType;
+            if (IsObjectProxyEnumerable(type, false, out enumerableObjectType))
+            {
+                serializedInvokers.TryAdd(type, new SerializedInvoker(factory, enumerableObjectType, true));
                 return true;
             }
             if (!options.OutputFormatters.Where(f => f.GetType() != GetType()).Any(f => f.CanWriteResult(context)))
