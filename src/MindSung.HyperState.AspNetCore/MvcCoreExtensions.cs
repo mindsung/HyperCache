@@ -12,8 +12,7 @@ namespace MindSung.HyperState.AspNetCore
     {
         private static ConcurrentDictionary<Type, object> defaultFactories = new ConcurrentDictionary<Type, object>();
 
-        public static IMvcCoreBuilder AddWebObjectProxy<TSerialized, TFactory>(this IMvcCoreBuilder builder, TFactory factory)
-            where TFactory : IWebObjectProxyFactory<TSerialized>
+        public static IMvcCoreBuilder AddWebObjectProxy<TSerialized>(this IMvcCoreBuilder builder, IWebObjectProxyFactory<TSerialized> factory)
         {
             // If this is the first factory added for the TSerialized type, set it as the default factory
             // for dependency injection of the generic type IWebObjectProxyFactory<TSerialized>
@@ -26,7 +25,7 @@ namespace MindSung.HyperState.AspNetCore
             // Add formatters.
             return builder.AddMvcOptions(options =>
             {
-                var formatter = new ObjectProxyFormatter<TSerialized, TFactory>(factory, options);
+                var formatter = new ObjectProxyFormatter<TSerialized>(factory, options);
                 options.OutputFormatters.Insert(0, formatter);
                 options.InputFormatters.Insert(0, formatter);
             });
@@ -34,17 +33,17 @@ namespace MindSung.HyperState.AspNetCore
 
         public static IMvcCoreBuilder AddJsonWebObjectProxy(this IMvcCoreBuilder builder, ISerializationProvider<string> jsonSerializer)
         {
-            return AddWebObjectProxy<string, JsonWebObjectProxyFactory>(builder, new JsonWebObjectProxyFactory(jsonSerializer));
+            return AddWebObjectProxy<string>(builder, new JsonWebObjectProxyFactory(jsonSerializer));
         }
 
         public static IMvcCoreBuilder AddJsonWebObjectProxy(this IMvcCoreBuilder builder, JsonSerializerSettings settings = null)
         {
-            return AddWebObjectProxy<string, JsonWebObjectProxyFactory>(builder, new JsonWebObjectProxyFactory(settings));
+            return AddWebObjectProxy<string>(builder, new JsonWebObjectProxyFactory(settings));
         }
 
         public static IMvcCoreBuilder AddJsonWebObjectProxy(this IMvcCoreBuilder builder, Action<JsonSerializerSettings> setupAction)
         {
-            return AddWebObjectProxy<string, JsonWebObjectProxyFactory>(builder, new JsonWebObjectProxyFactory(setupAction));
+            return AddWebObjectProxy<string>(builder, new JsonWebObjectProxyFactory(setupAction));
         }
     }
 }

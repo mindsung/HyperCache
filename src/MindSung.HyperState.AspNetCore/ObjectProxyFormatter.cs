@@ -13,16 +13,15 @@ using System.Threading.Tasks;
 
 namespace MindSung.HyperState.AspNetCore
 {
-    internal class ObjectProxyFormatter<TSerialized, TFactory> : IOutputFormatter, IInputFormatter
-        where TFactory : IWebObjectProxyFactory<TSerialized>
+    internal class ObjectProxyFormatter<TSerialized> : IOutputFormatter, IInputFormatter
     {
-        public ObjectProxyFormatter(TFactory factory, MvcOptions options)
+        public ObjectProxyFormatter(IWebObjectProxyFactory<TSerialized> factory, MvcOptions options)
         {
             this.factory = factory;
             this.options = options;
         }
 
-        private TFactory factory;
+        private IWebObjectProxyFactory<TSerialized> factory;
         private MvcOptions options;
 
         bool IsInterfaceObjectProxy(Type ifType)
@@ -83,7 +82,7 @@ namespace MindSung.HyperState.AspNetCore
 
         class FromSerializedInvoker
         {
-            public FromSerializedInvoker(TFactory factory, Type objectType, bool isCollection)
+            public FromSerializedInvoker(IWebObjectProxyFactory<TSerialized> factory, Type objectType, bool isCollection)
             {
                 this.factory = factory;
                 this.isCollection = isCollection;
@@ -100,7 +99,7 @@ namespace MindSung.HyperState.AspNetCore
             }
 
             bool isCollection;
-            TFactory factory;
+            IWebObjectProxyFactory<TSerialized> factory;
             MethodInfo fromSerializedMethod;
 
             public object FromSerialized(TSerialized serialized)
@@ -158,7 +157,7 @@ namespace MindSung.HyperState.AspNetCore
 
         class SerializedInvoker
         {
-            public SerializedInvoker(TFactory factory, Type objectType, bool isCollection)
+            public SerializedInvoker(IWebObjectProxyFactory<TSerialized> factory, Type objectType, bool isCollection)
             {
                 this.factory = factory;
                 this.isCollection = isCollection;
@@ -175,7 +174,7 @@ namespace MindSung.HyperState.AspNetCore
             }
 
             bool isCollection;
-            TFactory factory;
+            IWebObjectProxyFactory<TSerialized> factory;
             MethodInfo getSerializedMethod;
 
             public TSerialized GetSerialized(object proxyOrCollection)
