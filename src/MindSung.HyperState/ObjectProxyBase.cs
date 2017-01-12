@@ -79,14 +79,19 @@ namespace MindSung.HyperState
                 lock (sync)
                 {
                     this._Object = value;
-                    _Serialized = default(TSerialized);
-                    hasSerialized = false;
                     hasObject = true;
+                    ObjectChanged();
                 }
             }
         }
         private TObject _Object;
         private bool hasObject;
+
+        public void ObjectChanged()
+        {
+            _Serialized = default(TSerialized);
+            hasSerialized = false;
+        }
     }
 
     public abstract class ObjectProxyBase<TObject> : ObjectProxyBase<TObject, string>, IObjectProxy<TObject>
