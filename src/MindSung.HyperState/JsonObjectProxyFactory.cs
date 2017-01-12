@@ -8,7 +8,7 @@ using System.Text;
 
 namespace MindSung.HyperState
 {
-    public class JsonObjectProxyFactory : ObjectProxyFactoryBase<string>
+    public class JsonObjectProxyFactory : ObjectProxyFactoryBase
     {
         public JsonObjectProxyFactory(ISerializationProvider<string> jsonSerializer)
             : base(jsonSerializer)

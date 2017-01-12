@@ -14,4 +14,12 @@ namespace MindSung.HyperState
         IReadOnlyList<IObjectProxy<TObject, TSerialized>> FromSerializedCollection<TObject>(TSerialized serializedCollection);
         TSerialized ToSerializedCollection<TObject>(IEnumerable<IObjectProxy<TObject, TSerialized>> collection);
     }
+
+    public interface IObjectProxyFactory : IObjectProxyFactory<string>
+    {
+        new IObjectProxy<TObject> FromObject<TObject>(TObject obj);
+        new IObjectProxy<TObject> FromSerialized<TObject>(string serialized);
+        new IReadOnlyList<IObjectProxy<TObject>> FromSerializedCollection<TObject>(string serializedCollection);
+        string ToSerializedCollection<TObject>(IEnumerable<IObjectProxy<TObject>> collection);
+    }
 }

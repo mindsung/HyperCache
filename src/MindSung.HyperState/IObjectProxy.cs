@@ -10,4 +10,8 @@ namespace MindSung.HyperState
         TSerialized Serialized { get; set; }
         TObject Object { get; set; }
     }
+
+    public interface IObjectProxy<TObject> : IObjectProxy<TObject, string>
+    {
+    }
 }

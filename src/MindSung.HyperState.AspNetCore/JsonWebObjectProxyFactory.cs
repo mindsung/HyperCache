@@ -9,7 +9,7 @@ using System.Text;
 
 namespace MindSung.HyperState.AspNetCore
 {
-    public class JsonWebObjectProxyFactory : JsonObjectProxyFactory, IWebObjectProxyFactory<string>
+    public class JsonWebObjectProxyFactory : JsonObjectProxyFactory, IWebObjectProxyFactory
     {
         public JsonWebObjectProxyFactory(ISerializationProvider<string> jsonSerializer)
             : base(jsonSerializer)

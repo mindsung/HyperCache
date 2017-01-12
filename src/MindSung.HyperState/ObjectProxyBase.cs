@@ -88,4 +88,12 @@ namespace MindSung.HyperState
         private TObject _Object;
         private bool hasObject;
     }
+
+    public abstract class ObjectProxyBase<TObject> : ObjectProxyBase<TObject, string>, IObjectProxy<TObject>
+    {
+        protected ObjectProxyBase(ISerializationProvider<string> serializer)
+            : base(serializer)
+        {
+        }
+    }
 }

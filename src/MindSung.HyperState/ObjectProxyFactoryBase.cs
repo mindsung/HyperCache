@@ -42,4 +42,32 @@ namespace MindSung.HyperState
             throw new NotImplementedException();
         }
     }
+
+    public abstract class ObjectProxyFactoryBase : ObjectProxyFactoryBase<string>, IObjectProxyFactory
+    {
+        protected ObjectProxyFactoryBase(ISerializationProvider<string> serializer)
+            : base(serializer)
+        {
+        }
+
+        IObjectProxy<TObject> IObjectProxyFactory.FromObject<TObject>(TObject obj)
+        {
+            return (IObjectProxy<TObject>)FromObject(obj);
+        }
+
+        IObjectProxy<TObject> IObjectProxyFactory.FromSerialized<TObject>(string serialized)
+        {
+            return (IObjectProxy<TObject>)FromSerialized<TObject>(serialized);
+        }
+
+        IReadOnlyList<IObjectProxy<TObject>> IObjectProxyFactory.FromSerializedCollection<TObject>(string serializedCollection)
+        {
+            return (IReadOnlyList<IObjectProxy<TObject>>)FromSerializedCollection<TObject>(serializedCollection);
+        }
+
+        string IObjectProxyFactory.ToSerializedCollection<TObject>(IEnumerable<IObjectProxy<TObject>> collection)
+        {
+            return ToSerializedCollection(collection);
+        }
+    }
 }

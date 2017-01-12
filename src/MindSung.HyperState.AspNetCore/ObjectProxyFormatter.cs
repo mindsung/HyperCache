@@ -26,8 +26,10 @@ namespace MindSung.HyperState.AspNetCore
 
         bool IsInterfaceObjectProxy(Type ifType)
         {
-            return ifType.GenericTypeArguments.Length == 2 && ifType.GenericTypeArguments[1] == typeof(TSerialized)
-                && ifType == typeof(IObjectProxy<,>).MakeGenericType(ifType.GenericTypeArguments[0], typeof(TSerialized));
+            return (ifType.GenericTypeArguments.Length == 1 && typeof(TSerialized) == typeof(string)
+                    && ifType == typeof(IObjectProxy<>).MakeGenericType(ifType.GenericTypeArguments[0]))
+                || (ifType.GenericTypeArguments.Length == 2 && ifType.GenericTypeArguments[1] == typeof(TSerialized)
+                    && ifType == typeof(IObjectProxy<,>).MakeGenericType(ifType.GenericTypeArguments[0], typeof(TSerialized)));
         }
 
         bool IsObjectProxy(Type type)

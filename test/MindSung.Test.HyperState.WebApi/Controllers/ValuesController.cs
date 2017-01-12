@@ -13,7 +13,7 @@ namespace MindSung.Test.HyperState.WebApi.Controllers
     [Route("api/[controller]")]
     public class ValuesController : Controller
     {
-        public ValuesController(IWebObjectProxyFactory<string> factory)
+        public ValuesController(IWebObjectProxyFactory factory)
         {
             this.factory = factory;
 
@@ -27,7 +27,7 @@ namespace MindSung.Test.HyperState.WebApi.Controllers
             }
         }
 
-        IWebObjectProxyFactory<string> factory;
+        IWebObjectProxyFactory factory;
 
         public class MyValues
         {
@@ -58,7 +58,7 @@ namespace MindSung.Test.HyperState.WebApi.Controllers
 
         // POST api/values
         [HttpPost]
-        public ActionResult Post([FromBody]IObjectProxy<MyValues, string> proxy)
+        public ActionResult Post([FromBody]IObjectProxy<MyValues> proxy)
         {
             if (!simpleCache.TryAdd(proxy.Object.Id, proxy.Serialized))
             {
@@ -69,7 +69,7 @@ namespace MindSung.Test.HyperState.WebApi.Controllers
 
         // PUT api/values/{id}
         [HttpPut("{id}")]
-        public ActionResult Put(int id, [FromBody]IObjectProxy<MyValues, string> proxy)
+        public ActionResult Put(int id, [FromBody]IObjectProxy<MyValues> proxy)
         {
             if (!simpleCache.ContainsKey(id))
             {
@@ -85,14 +85,14 @@ namespace MindSung.Test.HyperState.WebApi.Controllers
 
         // POST api/values/put/{id}
         [HttpPost("put/{id}")]
-        public ActionResult PostPut(int id, [FromBody]IObjectProxy<MyValues, string> proxy)
+        public ActionResult PostPut(int id, [FromBody]IObjectProxy<MyValues> proxy)
         {
             return Put(id, proxy);
         }
 
         // PATCH api/values
         [HttpPatch]
-        public ActionResult Patch([FromBody]IEnumerable<IObjectProxy<MyValues, string>> values)
+        public ActionResult Patch([FromBody]IEnumerable<IObjectProxy<MyValues>> values)
         {
             foreach (var proxy in values)
             {
@@ -103,7 +103,7 @@ namespace MindSung.Test.HyperState.WebApi.Controllers
 
         // POST api/values/patch
         [HttpPost("patch")]
-        public ActionResult PostPatch([FromBody]IEnumerable<IObjectProxy<MyValues, string>> values)
+        public ActionResult PostPatch([FromBody]IEnumerable<IObjectProxy<MyValues>> values)
         {
             return Patch(values);
         }
