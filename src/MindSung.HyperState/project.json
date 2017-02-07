@@ -1,4 +1,4 @@
-﻿{
+{
   "version": "0.1.0-*",
   "description": "MindSung.HyperState is a library that provides high-performance access to objects that may exist in multiple states, including native, serialized, and persisted states.",
   "authors": [ "Robb Eads" ],
@@ -17,6 +17,7 @@
   },
 
   "dependencies": {
+    "MindSung.Caching": "0.1.0-*",
     "Newtonsoft.Json": "9.0.1"
   },
 
