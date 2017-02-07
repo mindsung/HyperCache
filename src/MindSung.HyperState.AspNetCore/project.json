@@ -1,9 +1,24 @@
 ﻿{
-  "version": "1.0.0-*",
+  "version": "0.1.0-*",
+  "description": "MindSung.HyperState.AspNetCore provides helpers to the MindSung.HyperState library for use in ASP.NET Core applications.",
+  "authors": [ "Robb Eads" ],
+  "owners": [ "MindSung" ],
+  "projectUrl": "https://github.com/mindsung/HyperState",
+
+  "packOptions": {
+    "owners": [ "MindSung" ],
+    "projectUrl": "https://github.com/mindsung/HyperState",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/mindsung/HyperState"
+    },
+    "summary": "MindSung.HyperState.AspNetCore provides helpers to the MindSung.HyperState library for use in ASP.NET Core applications.",
+    "tags": [ "cache", "caching", "asp.net" ]
+  },
 
   "dependencies": {
     "Microsoft.AspNetCore.Mvc": "1.0.1",
-    "MindSung.HyperState": "1.0.0-*"
+    "MindSung.HyperState": "0.1.0-*"
   },
 
   "frameworks": {
