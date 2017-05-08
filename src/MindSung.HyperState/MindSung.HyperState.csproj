@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>MindSung.HyperState is a library that provides high-performance access to objects that may exist in multiple states, including native, serialized, and persisted states.</Description>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <Authors>Robb Eads</Authors>
+    <TargetFrameworks>net451;netstandard1.6</TargetFrameworks>
+    <AssemblyName>MindSung.HyperState</AssemblyName>
+    <PackageId>MindSung.HyperState</PackageId>
+    <PackageTags>cache;caching</PackageTags>
+    <PackageProjectUrl>https://github.com/mindsung/HyperState</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/mindsung/HyperState</RepositoryUrl>
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Caching\src\MindSung.Caching\MindSung.Caching.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+</Project>

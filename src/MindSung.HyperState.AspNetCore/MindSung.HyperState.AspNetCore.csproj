@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>MindSung.HyperState.AspNetCore provides helpers to the MindSung.HyperState library for use in ASP.NET Core applications.</Description>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <Authors>Robb Eads</Authors>
+    <TargetFrameworks>net451;netstandard1.6</TargetFrameworks>
+    <AssemblyName>MindSung.HyperState.AspNetCore</AssemblyName>
+    <PackageId>MindSung.HyperState.AspNetCore</PackageId>
+    <PackageTags>cache;caching;asp.net</PackageTags>
+    <PackageProjectUrl>https://github.com/mindsung/HyperState</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/mindsung/HyperState</RepositoryUrl>
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MindSung.HyperState\MindSung.HyperState.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+</Project>
