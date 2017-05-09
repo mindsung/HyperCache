@@ -19,9 +19,9 @@ namespace MindSung.HyperState
 
         private ModelProviderBase<TEntity, TId, TSerialized>[] modelProviders;
 
-        public async Task<IObjectProxy<TEntity, TSerialized>> Insert(IObjectProxy<TEntity, TSerialized> value)
+        public async Task<IDualState<TEntity, TSerialized>> Insert(IDualState<TEntity, TSerialized> value)
         {
-            IObjectProxy<TEntity, TSerialized> propagateValue = value;
+            IDualState<TEntity, TSerialized> propagateValue = value;
             foreach (var model in modelProviders)
             {
                 propagateValue = await model.Insert(propagateValue);
@@ -29,9 +29,9 @@ namespace MindSung.HyperState
             return propagateValue;
         }
 
-        public async Task<IObjectProxy<TEntity, TSerialized>> Update(TId id, IObjectProxy<TEntity, TSerialized> value)
+        public async Task<IDualState<TEntity, TSerialized>> Update(TId id, IDualState<TEntity, TSerialized> value)
         {
-            IObjectProxy<TEntity, TSerialized> propagateValue = value;
+            IDualState<TEntity, TSerialized> propagateValue = value;
             foreach (var model in modelProviders)
             {
                 propagateValue = await model.Update(id, propagateValue);
@@ -39,9 +39,9 @@ namespace MindSung.HyperState
             return propagateValue;
         }
 
-        public async Task<IObjectProxy<TEntity, TSerialized>> Get(TId id)
+        public async Task<IDualState<TEntity, TSerialized>> Get(TId id)
         {
-            IObjectProxy<TEntity, TSerialized> value;
+            IDualState<TEntity, TSerialized> value;
             foreach (var model in modelProviders.Reverse())
             {
                 value = await model.Get(id);

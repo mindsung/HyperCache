@@ -12,48 +12,48 @@ namespace MindSung.HyperState.AspNetCore
     {
         private static ConcurrentDictionary<string, object> defaultFactories = new ConcurrentDictionary<string, object>();
 
-        public static IMvcCoreBuilder AddWebObjectProxy<TSerialized>(this IMvcCoreBuilder builder, IWebObjectProxyFactory<TSerialized> factory)
+        public static IMvcCoreBuilder AddWebDualState<TSerialized>(this IMvcCoreBuilder builder, IWebDualStateFactory<TSerialized> factory)
         {
-            // Always add the factory for the default IWebObjectProxyFactory interface.
+            // Always add the factory for the default IWebDualStateFactory interface.
             if (defaultFactories.TryAdd("stringfactory", factory))
             {
-                builder.Services.AddSingleton(typeof(IWebObjectProxyFactory), factory);
+                builder.Services.AddSingleton(typeof(IWebDualStateFactory), factory);
             }
             // If this is the first factory added for the TSerialized type, set it as the default factory
-            // for dependency injection of the generic type IWebObjectProxyFactory<TSerialized>
+            // for dependency injection of the generic type IWebDualStateFactory<TSerialized>
             if (defaultFactories.TryAdd(typeof(TSerialized).FullName, factory))
             {
-                builder.Services.AddSingleton(typeof(IWebObjectProxyFactory<TSerialized>), factory);
+                builder.Services.AddSingleton(typeof(IWebDualStateFactory<TSerialized>), factory);
             }
             // Add the factory for dependency injection of the specific type.
             builder.Services.AddSingleton(factory.GetType(), factory);
             // Add formatters.
             return builder.AddMvcOptions(options =>
             {
-                var formatter = new ObjectProxyFormatter<TSerialized>(factory, options);
+                var formatter = new DualStateFormatter<TSerialized>(factory, options);
                 options.OutputFormatters.Insert(0, formatter);
                 options.InputFormatters.Insert(0, formatter);
             });
         }
 
-        public static IMvcCoreBuilder AddWebObjectProxy(this IMvcCoreBuilder builder, IWebObjectProxyFactory factory)
+        public static IMvcCoreBuilder AddWebDualState(this IMvcCoreBuilder builder, IWebDualStateFactory factory)
         {
-            return AddWebObjectProxy<string>(builder, factory);
+            return AddWebDualState<string>(builder, factory);
         }
 
-        public static IMvcCoreBuilder AddJsonWebObjectProxy(this IMvcCoreBuilder builder, ISerializationProvider<string> jsonSerializer)
+        public static IMvcCoreBuilder AddJsonWebDualState(this IMvcCoreBuilder builder, ISerializationProvider<string> jsonSerializer)
         {
-            return AddWebObjectProxy(builder, new JsonWebObjectProxyFactory(jsonSerializer));
+            return AddWebDualState(builder, new JsonWebDualStateFactory(jsonSerializer));
         }
 
-        public static IMvcCoreBuilder AddJsonWebObjectProxy(this IMvcCoreBuilder builder, JsonSerializerSettings settings = null)
+        public static IMvcCoreBuilder AddJsonWebDualState(this IMvcCoreBuilder builder, JsonSerializerSettings settings = null)
         {
-            return AddWebObjectProxy(builder, new JsonWebObjectProxyFactory(settings));
+            return AddWebDualState(builder, new JsonWebDualStateFactory(settings));
         }
 
-        public static IMvcCoreBuilder AddJsonWebObjectProxy(this IMvcCoreBuilder builder, Action<JsonSerializerSettings> setupAction)
+        public static IMvcCoreBuilder AddJsonWebDualState(this IMvcCoreBuilder builder, Action<JsonSerializerSettings> setupAction)
         {
-            return AddWebObjectProxy(builder, new JsonWebObjectProxyFactory(setupAction));
+            return AddWebDualState(builder, new JsonWebDualStateFactory(setupAction));
         }
     }
 }
