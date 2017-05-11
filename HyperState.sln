@@ -1,17 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{CCA01995-1B7B-4370-B989-176AB495FE1E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{D322F699-973E-4D41-AF47-EAC098AD2509}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MindSung.HyperState", "src\MindSung.HyperState\MindSung.HyperState.xproj", "{22C44C55-1D52-4A6F-8968-D1C1537B86D1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MindSung.HyperState", "src\MindSung.HyperState\MindSung.HyperState.csproj", "{22C44C55-1D52-4A6F-8968-D1C1537B86D1}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MindSung.HyperState.AspNetCore", "src\MindSung.HyperState.AspNetCore\MindSung.HyperState.AspNetCore.xproj", "{2774DDE4-759E-4E31-947D-694E7625D201}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MindSung.HyperState.AspNetCore", "src\MindSung.HyperState.AspNetCore\MindSung.HyperState.AspNetCore.csproj", "{2774DDE4-759E-4E31-947D-694E7625D201}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MindSung.Test.HyperState.WebApi", "test\MindSung.Test.HyperState.WebApi\MindSung.Test.HyperState.WebApi.xproj", "{B249AC56-28E6-41DE-B6C6-E09FEAF3BB44}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MindSung.Test.HyperState.WebApi", "test\MindSung.Test.HyperState.WebApi\MindSung.Test.HyperState.WebApi.csproj", "{B249AC56-28E6-41DE-B6C6-E09FEAF3BB44}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ref", "ref", "{B16AD993-9B58-463D-8EE1-FF664A444CE8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MindSung.Caching", "..\Caching\src\MindSung.Caching\MindSung.Caching.csproj", "{E3034BDB-E646-4BAF-8F1C-21C1A48FF544}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +35,10 @@ Global
 		{B249AC56-28E6-41DE-B6C6-E09FEAF3BB44}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B249AC56-28E6-41DE-B6C6-E09FEAF3BB44}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B249AC56-28E6-41DE-B6C6-E09FEAF3BB44}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3034BDB-E646-4BAF-8F1C-21C1A48FF544}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3034BDB-E646-4BAF-8F1C-21C1A48FF544}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3034BDB-E646-4BAF-8F1C-21C1A48FF544}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3034BDB-E646-4BAF-8F1C-21C1A48FF544}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -39,5 +47,6 @@ Global
 		{22C44C55-1D52-4A6F-8968-D1C1537B86D1} = {CCA01995-1B7B-4370-B989-176AB495FE1E}
 		{2774DDE4-759E-4E31-947D-694E7625D201} = {CCA01995-1B7B-4370-B989-176AB495FE1E}
 		{B249AC56-28E6-41DE-B6C6-E09FEAF3BB44} = {D322F699-973E-4D41-AF47-EAC098AD2509}
+		{E3034BDB-E646-4BAF-8F1C-21C1A48FF544} = {B16AD993-9B58-463D-8EE1-FF664A444CE8}
 	EndGlobalSection
 EndGlobal

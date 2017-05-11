@@ -10,41 +10,50 @@ namespace MindSung.HyperState.AspNetCore
 {
     public static class MvcCoreExtensions
     {
-        private static ConcurrentDictionary<Type, object> defaultFactories = new ConcurrentDictionary<Type, object>();
+        private static ConcurrentDictionary<string, object> defaultFactories = new ConcurrentDictionary<string, object>();
 
-        public static IMvcCoreBuilder AddWebObjectProxy<TSerialized, TFactory>(this IMvcCoreBuilder builder, TFactory factory)
-            where TFactory : IWebObjectProxyFactory<TSerialized>
+        public static IMvcCoreBuilder AddWebDualState<TSerialized>(this IMvcCoreBuilder builder, IWebDualStateFactory<TSerialized> factory)
         {
-            // If this is the first factory added for the TSerialized type, set it as the default factory
-            // for dependency injection of the generic type IWebObjectProxyFactory<TSerialized>
-            if (defaultFactories.TryAdd(typeof(TSerialized), factory))
+            // Always add the factory for the default IWebDualStateFactory interface.
+            if (defaultFactories.TryAdd("stringfactory", factory))
             {
-                builder.Services.AddTransient(typeof(IWebObjectProxyFactory<TSerialized>), _ => defaultFactories[typeof(TSerialized)]);
+                builder.Services.AddSingleton(typeof(IWebDualStateFactory), factory);
+            }
+            // If this is the first factory added for the TSerialized type, set it as the default factory
+            // for dependency injection of the generic type IWebDualStateFactory<TSerialized>
+            if (defaultFactories.TryAdd(typeof(TSerialized).FullName, factory))
+            {
+                builder.Services.AddSingleton(typeof(IWebDualStateFactory<TSerialized>), factory);
             }
             // Add the factory for dependency injection of the specific type.
-            builder.Services.AddTransient(factory.GetType(), _ => factory);
+            builder.Services.AddSingleton(factory.GetType(), factory);
             // Add formatters.
             return builder.AddMvcOptions(options =>
             {
-                var formatter = new ObjectProxyFormatter<TSerialized, TFactory>(factory, options);
+                var formatter = new DualStateFormatter<TSerialized>(factory, options);
                 options.OutputFormatters.Insert(0, formatter);
                 options.InputFormatters.Insert(0, formatter);
             });
         }
 
-        public static IMvcCoreBuilder AddJsonWebObjectProxy(this IMvcCoreBuilder builder, ISerializationProvider<string> jsonSerializer)
+        public static IMvcCoreBuilder AddWebDualState(this IMvcCoreBuilder builder, IWebDualStateFactory factory)
         {
-            return AddWebObjectProxy<string, JsonWebObjectProxyFactory>(builder, new JsonWebObjectProxyFactory(jsonSerializer));
+            return AddWebDualState<string>(builder, factory);
         }
 
-        public static IMvcCoreBuilder AddJsonWebObjectProxy(this IMvcCoreBuilder builder, JsonSerializerSettings settings = null)
+        public static IMvcCoreBuilder AddJsonWebDualState(this IMvcCoreBuilder builder, ISerializationProvider<string> jsonSerializer)
         {
-            return AddWebObjectProxy<string, JsonWebObjectProxyFactory>(builder, new JsonWebObjectProxyFactory(settings));
+            return AddWebDualState(builder, new JsonWebDualStateFactory(jsonSerializer));
         }
 
-        public static IMvcCoreBuilder AddJsonWebObjectProxy(this IMvcCoreBuilder builder, Action<JsonSerializerSettings> setupAction)
+        public static IMvcCoreBuilder AddJsonWebDualState(this IMvcCoreBuilder builder, JsonSerializerSettings settings = null)
         {
-            return AddWebObjectProxy<string, JsonWebObjectProxyFactory>(builder, new JsonWebObjectProxyFactory(setupAction));
+            return AddWebDualState(builder, new JsonWebDualStateFactory(settings));
+        }
+
+        public static IMvcCoreBuilder AddJsonWebDualState(this IMvcCoreBuilder builder, Action<JsonSerializerSettings> setupAction)
+        {
+            return AddWebDualState(builder, new JsonWebDualStateFactory(setupAction));
         }
     }
 }
