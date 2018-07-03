@@ -4,7 +4,7 @@
     <Description>MindSung.HyperState.AspNetCore provides helpers to the MindSung.HyperState library for use in ASP.NET Core applications.</Description>
     <VersionPrefix>0.2.0</VersionPrefix>
     <Authors>Robb Eads</Authors>
-    <TargetFrameworks>net451;netstandard1.6</TargetFrameworks>
+    <TargetFrameworks>netstandard1.6</TargetFrameworks>
     <AssemblyName>MindSung.HyperState.AspNetCore</AssemblyName>
     <PackageId>MindSung.HyperState.AspNetCore</PackageId>
     <PackageTags>cache;caching;asp.net</PackageTags>

@@ -5,11 +5,10 @@ namespace MindSung.HyperState
 {
     public static class MultiLayerStore
     {
-        class _MultiLayerStore<TKey, TValue, TMid1, TMid2, TMid3, TPersist> : IStore<TKey, TValue>
+        class _MultiLayerStore<TKey, TValue, TMid1, TMid2, TPersist> : IStore<TKey, TValue>
             where TValue : class
             where TMid1 : class
             where TMid2 : class
-            where TMid3 : class
             where TPersist : class
         {
             public IStore<TKey, TValue> valueProvider;
@@ -17,9 +16,7 @@ namespace MindSung.HyperState
             public IStore<TKey, TMid1> mid1Provider;
             public Func<TMid2, TMid1> mid1FromMid2;
             public IStore<TKey, TMid2> mid2Provider;
-            public Func<TMid3, TMid2> mid2FromMid3;
-            public IStore<TKey, TMid3> mid3Provider;
-            public Func<TPersist, TMid3> mid3FromPersist;
+            public Func<TPersist, TMid2> mid2FromPersist;
             public IStore<TKey, TPersist> persistProvider;
             public Func<TValue, TPersist> valueToPersist;
 
@@ -47,20 +44,6 @@ namespace MindSung.HyperState
                             value = valueFromMid1(mid1);
                             await valueProvider.Put(key, value);
                         }
-
-                        if (value == null && mid3Provider != null)
-                        {
-                            var mid3 = await mid3Provider.Get(key);
-                            if (mid3 != null)
-                            {
-                                mid2 = mid2FromMid3(mid3);
-                                await mid2Provider.Put(key, mid2);
-                                mid1 = mid1FromMid2(mid2);
-                                await mid1Provider.Put(key, mid1);
-                                value = valueFromMid1(mid1);
-                                await valueProvider.Put(key, value);
-                            }
-                        }
                     }
                 }
 
@@ -69,9 +52,7 @@ namespace MindSung.HyperState
                     var persist = await persistProvider.Get(key);
                     if (persist != null)
                     {
-                        var mid3 = mid3FromPersist(persist);
-                        if (mid3Provider != null) await mid3Provider.Put(key, mid3);
-                        var mid2 = mid2FromMid3(mid3);
+                        var mid2 = mid2FromPersist(persist);
                         if (mid2Provider != null) await mid2Provider.Put(key, mid2);
                         var mid1 = mid1FromMid2(mid2);
                         if (mid1Provider != null) await mid1Provider.Put(key, mid1);
@@ -83,56 +64,25 @@ namespace MindSung.HyperState
                 return value;
             }
 
-            public async Task Put(TKey key, TValue value)
+            public async Task<TValue> Put(TKey key, TValue value)
             {
-                await persistProvider.Put(key, valueToPersist(value));
-                // Clear values from higher levels. They will be repopulated if requested again.
-                if (mid3Provider != null) await mid3Provider.Delete(key);
-                if (mid2Provider != null) await mid2Provider.Delete(key);
-                if (mid1Provider != null) await mid1Provider.Delete(key);
-                await valueProvider.Delete(key);
+                // Start at the bottom persisted level and repopulate back up.
+                var mid2 = mid2FromPersist(await persistProvider.Put(key, valueToPersist(value)));
+                if (mid2Provider != null) mid2 = await mid2Provider.Put(key, mid2);
+                var mid1 = mid1FromMid2(mid2);
+                if (mid1Provider != null) mid1 = await mid1Provider.Put(key, mid1);
+                value = await valueProvider.Put(key, valueFromMid1(mid1));
+                return value;
             }
 
             public async Task Delete(TKey key)
             {
+                // Delete from the bottom up.
                 await persistProvider.Delete(key);
-                if (mid3Provider != null) await mid3Provider.Delete(key);
                 if (mid2Provider != null) await mid2Provider.Delete(key);
                 if (mid1Provider != null) await mid1Provider.Delete(key);
                 await valueProvider.Delete(key);
             }
-        }
-
-        public static IStore<TKey, TValue> Create<TKey, TValue, TMid1, TMid2, TMid3, TPersist>(
-            IStore<TKey, TValue> valueProvider,
-            Func<TMid1, TValue> valueFromMid1,
-            IStore<TKey, TMid1> mid1Provider,
-            Func<TMid2, TMid1> mid1FromMid2,
-            IStore<TKey, TMid2> mid2Provider,
-            Func<TMid3, TMid2> mid2FromMid3,
-            IStore<TKey, TMid3> mid3Provider,
-            Func<TPersist, TMid3> mid3FromPersist,
-            IStore<TKey, TPersist> persistProvider,
-            Func<TValue, TPersist> valueToPersist)
-            where TValue : class
-            where TMid1 : class
-            where TMid2 : class
-            where TMid3 : class
-            where TPersist : class
-        {
-            return new _MultiLayerStore<TKey, TValue, TMid1, TMid2, TMid3, TPersist>
-            {
-                valueProvider = valueProvider,
-                valueFromMid1 = valueFromMid1,
-                mid1Provider = mid1Provider,
-                mid1FromMid2 = mid1FromMid2,
-                mid2Provider = mid2Provider,
-                mid2FromMid3 = mid2FromMid3,
-                mid3Provider = mid3Provider,
-                mid3FromPersist = mid3FromPersist,
-                persistProvider = persistProvider,
-                valueToPersist = valueToPersist
-            };
         }
 
         public static IStore<TKey, TValue> Create<TKey, TValue, TMid1, TMid2, TPersist>(
@@ -149,7 +99,17 @@ namespace MindSung.HyperState
             where TMid2 : class
             where TPersist : class
         {
-            return Create(valueProvider, valueFromMid1, mid1Provider, mid1FromMid2, mid2Provider, val => val, null, mid2FromPersist, persistProvider, valueToPersist);
+            return new _MultiLayerStore<TKey, TValue, TMid1, TMid2, TPersist>
+            {
+                valueProvider = valueProvider,
+                valueFromMid1 = valueFromMid1,
+                mid1Provider = mid1Provider,
+                mid1FromMid2 = mid1FromMid2,
+                mid2Provider = mid2Provider,
+                mid2FromPersist = mid2FromPersist,
+                persistProvider = persistProvider,
+                valueToPersist = valueToPersist
+            };
         }
 
         public static IStore<TKey, TValue> Create<TKey, TValue, TMid1, TPersist>(
@@ -163,7 +123,7 @@ namespace MindSung.HyperState
             where TMid1 : class
             where TPersist : class
         {
-            return Create(valueProvider, valueFromMid1, mid1Provider, val => val, null, val => val, null, mid1FromPersist, persistProvider, valueToPersist);
+            return Create(valueProvider, valueFromMid1, mid1Provider, val => val, null, mid1FromPersist, persistProvider, valueToPersist);
         }
 
         public static IStore<TKey, TValue> Create<TKey, TValue, TPersist>(
@@ -174,7 +134,7 @@ namespace MindSung.HyperState
             where TValue : class
             where TPersist : class
         {
-            return Create(valueProvider, val => val, null, val => val, null, val => val, null, valueFromPersist, persistProvider, valueToPersist);
+            return Create(valueProvider, val => val, null, val => val, null, valueFromPersist, persistProvider, valueToPersist);
         }
     }
 }

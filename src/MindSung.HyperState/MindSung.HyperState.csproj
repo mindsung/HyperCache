@@ -20,5 +20,6 @@
 
   <ItemGroup>
     <Compile Remove="StoreLayer.cs" />
+    <Compile Remove="HyperStateModel.cs" />
   </ItemGroup>
 </Project>
